@@ -12,7 +12,7 @@ Built in **Go 1.22** (the brief specifies Java 17+/Spring Boot; the language was
 # from the project root
 go build ./...              # confirm everything compiles
 go test ./... -race         # run the full test suite (unit + integration), with the race detector
-go run ./cmd                # start the REST server on :8080
+go run .               # start the REST server on :8080
 ```
 
 ## API
