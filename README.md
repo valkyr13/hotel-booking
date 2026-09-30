@@ -15,6 +15,21 @@ go test ./... -race         # run the full test suite (unit + integration), with
 go run .               # start the REST server on :8080
 ```
 
+### Or, with Docker (no Go installation needed)
+
+```bash
+docker compose up --build
+```
+
++Or without Compose:
++
++```bash
++docker build -t hotel-booking .
++docker run -p 8080:8080 hotel-booking
++```
++
+ The API is then available on `localhost:8080`, same as running it directly. This project has zero external Go module dependencies (pure standard library), so the Docker build itself needs no network access beyond pulling the base images.
+
 ## API
 
 | Method | Path | Purpose |
