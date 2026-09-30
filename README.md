@@ -199,7 +199,70 @@ Every filter — no matter what it checks — reduces to one yes/no decision per
 
 ---
 
-## Next steps
+## Unit 7 — Package structure & layering
 
-- Unit 7 — package structure & layering
-- Unit 8 — tests + README
+**Go idiom, not Java's:** package by responsibility/domain concern, not by technical layer. A shared `controller/`, `service/`, `repo/` grouping was considered and rejected — it makes package-qualified names meaningless (`service.Release()` tells you nothing about which service) and recreates the same "unrelated things lumped together" problem one level down if applied to repositories too.
+
+```
+hotel-booking/
+├── cmd/
+│   └── main.go                    — composition root: wires everything together
+├── owner/                         — Owner, Property, RoomType, Amenity, Money, DateRange
+│   ├── owner.go
+│   ├── property.go
+│   ├── roomtype.go
+│   └── repository.go              — interface + in-memory impl
+├── availability/                  — AvailabilityService, sparse map, RWMutex
+│   ├── service.go
+│   └── repository.go
+├── booking/                       — Booking struct, state machine, BookingService
+│   ├── booking.go
+│   ├── service.go
+│   └── repository.go
+├── payment/                       — PaymentMethod, PaymentGateway, PaymentService
+│   ├── method.go
+│   ├── gateway.go
+│   ├── mock_gateway.go
+│   └── service.go
+├── refund/                        — RefundPolicy, TieredRefundPolicy
+│   └── policy.go
+├── search/                        — Filter interface, concrete filters, search orchestration
+│   ├── filter.go
+│   └── search.go
+└── api/                           — HTTP handlers only; imports the packages above, never the reverse
+    ├── owner_handler.go
+    ├── booking_handler.go
+    └── ...
+```
+
+**Key decisions:**
+
+- Each domain package (`booking`, `payment`, `availability`, etc.) defines and owns its own repository interface *and* its in-memory implementation — no shared `repository` package. This follows the Go idiom of defining interfaces at the consumer side, not the implementer side: `BookingRepository` lives in `booking`, next to the `BookingService` that actually uses it.
+- Domain packages never import `api`; `api` imports them. Domain logic has zero knowledge that HTTP exists — matches the brief's "domain logic kept separate from framework and persistence concerns."
+- `main.go` is the only place in the whole codebase that knows about concrete implementation types (e.g. that persistence happens to be in-memory today). Swapping to a real database later means writing new files inside the relevant package and changing one line in `main.go` — nothing in the services themselves changes, since they only ever depend on interfaces.
+
+---
+
+## Unit 8 — Test strategy
+
+**Priority order**, matching the rubric's "meaningful unit tests around core business logic" (not blanket coverage):
+
+**1. Booking state machine transitions** — highest priority, since this is where "correct state transitions" (High weight) and "invalid state transitions" (edge cases) both live.
+
+- Positive: `PENDING_PAYMENT → CONFIRMED` on payment success; `PENDING_PAYMENT → FAILED` on payment failure; `CONFIRMED → CANCELLED` on cancellation.
+- Negative (rejected): `PENDING_PAYMENT → CANCELLED` attempted directly; any transition attempted out of a terminal state.
+- Critical detail: tests must assert the **side effect** fired, not just the state flag — e.g. that `Release()` was actually called on failure/cancellation, and that the correct refund tier was applied on cancellation. A test that only checks the state flag would pass even if a side effect were silently missing.
+
+**2. Concurrency on `Reserve()`** — spin up multiple goroutines calling `Reserve()` simultaneously for the last remaining room on the same night; assert exactly one succeeds. This is the one test that actually proves the `RWMutex` design is correct, not just that it compiles.
+
+**3. Refund tier boundaries** — one test per boundary value (exactly 10 days, exactly 3 days, exactly 1 day, same-day), since off-by-one bugs live at boundaries, not in the middle of a range.
+
+**4. Filter matching**, as time permits — shallow filters (city, star rating) and deep filters (price, amenities — "matches if any room type qualifies") each need at least one case.
+
+**README:** covers how to build/run, key design decisions, assumptions, and what's left for more time — this design document doubles directly as the decisions-and-assumptions section.
+
+---
+
+## Status
+
+All 8 units complete — domain model, availability/concurrency, booking lifecycle, payment, cancellation/refund, search/filters, package structure, and test strategy. Design phase finished; ready for implementation.
