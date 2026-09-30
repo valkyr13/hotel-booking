@@ -262,7 +262,3 @@ hotel-booking/
 **README:** covers how to build/run, key design decisions, assumptions, and what's left for more time — this design document doubles directly as the decisions-and-assumptions section.
 
 ---
-
-## Status
-
-All 8 units complete — domain model, availability/concurrency, booking lifecycle, payment, cancellation/refund, search/filters, package structure, and test strategy. Design phase finished; ready for implementation.
