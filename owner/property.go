@@ -1,6 +1,10 @@
 package owner
 
-import "fmt"
+import (
+	
+	"fmt"
+	"hotel-booking/utils"
+)
 
 type Property struct {
 	ID          string
@@ -28,7 +32,7 @@ func NewProperty(ownerID, name, city, locality string, starRating int, amenities
 		return nil, fmt.Errorf("property: starRating must be between 1 and 5, got %d", starRating)
 	}
 	return &Property{
-		ID:         newID(),
+		ID:         utils.NewID(),
 		OwnerID:    ownerID,
 		Name:       name,
 		City:       city,

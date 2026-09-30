@@ -1,6 +1,10 @@
 package owner
 
-import "fmt"
+import (
+	
+	"fmt"
+	"hotel-booking/utils"
+)
 
 type Owner struct {
 	ID          string
@@ -13,7 +17,7 @@ func NewOwner(name string) (*Owner, error) {
 	if name == "" {
 		return nil, fmt.Errorf("owner: name is required")
 	}
-	return &Owner{ID: newID(), Name: name}, nil
+	return &Owner{ID: utils.NewID(), Name: name}, nil
 }
 
 func (o *Owner) AddProperty(propertyID string) {

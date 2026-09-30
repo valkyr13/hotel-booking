@@ -1,6 +1,7 @@
 package owner
 
 import (
+	"hotel-booking/utils"
 	"testing"
 	"time"
 )
@@ -134,7 +135,7 @@ func TestNewID_NoCollisionsAcrossManyCalls(t *testing.T) {
 	seen := make(map[string]bool)
 	const n = 10000
 	for i := 0; i < n; i++ {
-		id := newID()
+		id := utils.NewID()
 		if seen[id] {
 			t.Fatalf("collision detected after %d generated ids", i)
 		}

@@ -1,6 +1,10 @@
 package owner
 
-import "fmt"
+import (
+	
+	"fmt"
+	"hotel-booking/utils"
+)
 
 type RoomType struct {
 	ID           string
@@ -27,7 +31,7 @@ func NewRoomType(propertyID, name string, maxOccupancy int, basePrice Money, ame
 		return nil, fmt.Errorf("roomtype: roomCount must be positive, got %d", roomCount)
 	}
 	return &RoomType{
-		ID:           newID(),
+		ID:           utils.NewID(),
 		PropertyID:   propertyID,
 		Name:         name,
 		MaxOccupancy: maxOccupancy,

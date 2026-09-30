@@ -30,3 +30,7 @@ func (m Money) Percentage(pct int) Money {
 func (m Money) String() string {
 	return fmt.Sprintf("Rs.%d", int64(m))
 }
+
+func (m Money) Multiply(n int) Money {
+	return m * Money(n)
+}
