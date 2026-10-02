@@ -47,6 +47,7 @@ A complete working example of every endpoint together — onboard → search →
 
 ## Project structure
 
+```
 hotel-booking/
 ├── cmd/main.go — composition root: the only place that knows concrete implementation types
 ├── owner/ — Owner, Property, RoomType, Amenity, Money, DateRange + their repositories
@@ -56,7 +57,7 @@ hotel-booking/
 ├── refund/ — RefundPolicy, TieredRefundPolicy, cancellation orchestration
 ├── search/ — Filter interface + concrete filters, search orchestration
 └── api/ — HTTP handlers + DTOs; imports every package above, none of them import it
-
+```
 
 
 Packages are organized by domain responsibility (the Go idiom), not by technical layer (`controller/service/repo`), and each domain package owns its own repository interface rather than sharing one generic package — see "Key design decisions" below.
